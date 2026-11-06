@@ -1,0 +1,22 @@
+// Glossar: Begriffe fuer die Tooltips. Nur Daten.
+const GLOSSAR = {
+  'rochade': { begriff: 'Rochade', erklaerung: 'Ein Spezialzug, bei dem König und Turm gleichzeitig ziehen: Der König geht zwei Felder zur Seite, der Turm springt über ihn. So steht der König sicherer in der Ecke. Erlaubt nur, wenn beide noch nicht gezogen haben und der König nicht im Schach steht.' },
+  'en-passant': { begriff: 'En passant', erklaerung: 'Ein Spezialschlag für Bauern: Zieht ein gegnerischer Bauer gleich zwei Felder und landet neben deinem Bauern, darfst du ihn schlagen, als hätte er nur eines gemacht. Das geht nur im allerersten Moment danach.' },
+  'umwandlung': { begriff: 'Umwandlung', erklaerung: 'Erreicht ein Bauer die letzte Reihe des Gegners, wird er in eine Dame, einen Turm, einen Läufer oder einen Springer verwandelt. Meistens ist die Dame die beste Wahl.' },
+  'schach': { begriff: 'Schach', erklaerung: 'Ein König steht im Schach, wenn eine gegnerische Figur ihn angreifen könnte. Du musst dann sofort reagieren: den Angreifer schlagen, dazwischenziehen oder mit dem König ausweichen.' },
+  'schachmatt': { begriff: 'Schachmatt', erklaerung: 'Der König steht im Schach und es gibt keinen Zug mehr, der ihn rettet. Damit ist die Partie zu Ende und der Spieler, der das Matt gesetzt hat, gewinnt.' },
+  'patt': { begriff: 'Patt', erklaerung: 'Der Spieler am Zug steht nicht im Schach, hat aber keinen erlaubten Zug mehr. Die Partie endet dann unentschieden.' },
+  'remis': { begriff: 'Remis', erklaerung: 'So nennt man ein Unentschieden. Keiner von beiden gewinnt, zum Beispiel bei einem Patt oder wenn sich eine Stellung dreimal wiederholt.' },
+  'dreifache-wiederholung': { begriff: 'Dreifache Wiederholung', erklaerung: 'Tritt dieselbe Stellung mit demselben Spieler am Zug zum dritten Mal auf, ist die Partie remis. Das passiert zum Beispiel, wenn beide immer wieder hin- und herziehen.' },
+  'fuenfzig-zuege-regel': { begriff: 'Fünfzig-Züge-Regel', erklaerung: 'Wenn 50 Züge lang weder ein Bauer gezogen noch eine Figur geschlagen wurde, ist die Partie remis. So enden Stellungen, in denen niemand mehr vorankommt.' },
+  'zu-wenig-material': { begriff: 'Zu wenig Material', erklaerung: 'Manchmal sind so wenige Figuren übrig, dass kein Spieler mehr Matt setzen kann, zum Beispiel König gegen König. Dann ist die Partie sofort remis.' },
+  'entwicklung': { begriff: 'Entwicklung', erklaerung: 'So nennt man das Herausholen deiner Figuren von der Grundreihe auf aktive Felder. Je schneller sie mitspielen können, desto besser stehst du in der Eröffnung.' },
+  'leichtfiguren': { begriff: 'Leichtfiguren', erklaerung: 'Springer und Läufer heißen Leichtfiguren. Sie sind je etwa drei Bauern wert und kommen meist zuerst ins Spiel.' },
+  'zentrum': { begriff: 'Zentrum', erklaerung: 'Die vier Felder in der Brettmitte: d4, e4, d5 und e5. Von dort aus erreichen deine Figuren viele Felder, deshalb lohnt es sich, die Mitte zu besetzen oder zu kontrollieren.' },
+  'gedeckt': { begriff: 'Gedeckt', erklaerung: 'Eine Figur ist gedeckt, wenn eine eigene Figur sie beschützt. Wird sie geschlagen, kannst du zurückschlagen. Eine ungedeckte Figur kann der Gegner dagegen ohne Gegenwehr nehmen.' },
+  'offene-linie': { begriff: 'Offene Linie', erklaerung: 'Eine Linie (senkrechte Reihe) ohne Bauern. Türme fühlen sich dort besonders wohl, weil sie weit ins Spiel hineinwirken können.' },
+  'freibauer': { begriff: 'Freibauer', erklaerung: 'Ein Bauer, dem kein gegnerischer Bauer mehr im Weg steht, weder vor ihm noch auf den Nachbarlinien. Er hat gute Chancen, bis zur Umwandlung durchzukommen.' },
+  'eroeffnung': { begriff: 'Eröffnung', erklaerung: 'Die ersten Züge einer Partie. Hier bringst du deine Figuren ins Spiel, besetzt die Mitte und bringst den König in Sicherheit.' },
+  'mittelspiel': { begriff: 'Mittelspiel', erklaerung: 'Die Phase nach der Eröffnung, wenn die meisten Figuren noch auf dem Brett sind. Jetzt geht es um Angriffe, Verteidigung und Pläne.' },
+  'endspiel': { begriff: 'Endspiel', erklaerung: 'Die Schlussphase mit wenigen Figuren. Der König wird jetzt zu einer starken Figur, und Bauern können sich in eine Dame verwandeln.' },
+};

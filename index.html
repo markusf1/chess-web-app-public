@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Schach</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="app">
+    <section id="start" hidden>
+      <form class="start-karte" id="start-formular" novalidate>
+        <div class="start-figuren" id="start-figuren" aria-hidden="true"></div>
+        <h1>Schach</h1>
+        <p class="untertitel">Spiel gegen den Schachcomputer</p>
+        <label for="name-eingabe">Wie heißt du?</label>
+        <input id="name-eingabe" type="text" maxlength="20" autocomplete="nickname" placeholder="Dein Name">
+        <p class="feldtitel" id="titel-farbe">Mit welchen Figuren spielst du?</p>
+        <div class="wahl" role="group" aria-labelledby="titel-farbe">
+          <button type="button" data-farbe="w" aria-pressed="true"><span class="wahl-figur" data-figur="Kw"></span>Weiß<small>du beginnst</small></button>
+          <button type="button" data-farbe="s" aria-pressed="false"><span class="wahl-figur" data-figur="Ks"></span>Schwarz<small>Computer beginnt</small></button>
+        </div>
+        <p class="feldtitel" id="titel-stufe">Wie stark soll der Computer sein?</p>
+        <div class="wahl" role="group" aria-labelledby="titel-stufe">
+          <button type="button" data-stufe="leicht" aria-pressed="false">Leicht</button>
+          <button type="button" data-stufe="mittel" aria-pressed="true">Mittel</button>
+          <button type="button" data-stufe="schwer" aria-pressed="false">Schwer</button>
+        </div>
+        <button type="submit" id="los" class="los" disabled>Los geht's!</button>
+      </form>
+    </section>
+    <section id="partie" hidden>
+      <div class="spalte-brett">
+        <div class="spieler" id="zeile-computer">
+          <span aria-hidden="true">🤖</span>
+          <span id="name-computer">Schachcomputer <span class="badge" id="stufe-computer"></span></span>
+          <span id="denkt" hidden>denkt nach<span class="punkte" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></span>
+        </div>
+        <div class="brett-huelle">
+          <div id="brett"></div>
+          <div id="ende-overlay" data-ergebnis="" hidden role="dialog" aria-labelledby="ende-titel" aria-describedby="ende-text">
+            <div class="ende-konfetti" id="ende-konfetti" aria-hidden="true"></div>
+            <div class="wimpel" id="ende-wimpel" aria-hidden="true"></div>
+            <button type="button" id="ende-schliessen" class="ende-x" aria-label="Endstellung ansehen" title="Endstellung ansehen">×</button>
+            <div class="banner">
+              <div class="figuren" id="ende-figuren" aria-hidden="true"></div>
+              <h2 id="ende-titel"></h2>
+              <p id="ende-text"></p>
+              <div class="knopfreihe">
+                <button type="button" id="ende-nochmal" class="erst"></button>
+                <button type="button" id="ende-stufe" class="zweit">Stufe ändern</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="spieler" id="zeile-spieler">
+          <span aria-hidden="true">🙂</span>
+          <span id="name-spieler"></span>
+          <span class="amzug-text">ist am Zug</span>
+        </div>
+      </div>
+      <div class="seitenleiste">
+        <p id="status-zeile" class="box status" aria-live="polite"></p>
+        <div class="knoepfe">
+          <button type="button" class="knopf" id="knopf-zurueck" disabled>↶ Zug zurück</button>
+          <button type="button" class="knopf" id="knopf-neu">+ Neue Partie</button>
+          <button type="button" class="knopf schalter-knopf" id="schalter-hinweise" aria-pressed="false"><span class="schalter" aria-hidden="true"></span>Hinweise</button>
+          <button type="button" class="knopf schalter-knopf" id="schalter-geschlagene" aria-pressed="false"><span class="schalter" aria-hidden="true"></span>Geschlagene Figuren</button>
+          <button type="button" class="knopf schalter-knopf" id="schalter-toene" aria-pressed="true"><span class="schalter" aria-hidden="true"></span>Töne</button>
+          <button type="button" class="knopf schalter-knopf" id="schalter-ruhig" aria-pressed="false"><span class="schalter" aria-hidden="true"></span>Ruhige Figuren</button>
+        </div>
+        <div class="box hinweis" id="hinweisbox" hidden></div>
+        <div class="box geschlagen" id="geschlagene" hidden></div>
+      </div>
+    </section>
+    <div id="umwandlung" hidden role="dialog" aria-modal="true" aria-labelledby="umwandlung-titel">
+      <div class="umwandlung-karte">
+        <h2 id="umwandlung-titel">Zu welcher Figur soll dein Bauer werden?</h2>
+        <div class="wahl">
+          <button type="button" data-typ="D"><span class="wahl-figur"></span>Dame</button>
+          <button type="button" data-typ="T"><span class="wahl-figur"></span>Turm</button>
+          <button type="button" data-typ="L"><span class="wahl-figur"></span>Läufer</button>
+          <button type="button" data-typ="S"><span class="wahl-figur"></span>Springer</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="js/glossar.js"></script>
+  <script src="js/regeln.js"></script>
+  <script src="js/partie.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/hinweise.js"></script>
+  <script src="js/figuren.js"></script>
+  <script src="js/toene.js"></script>
+  <script src="js/speicher.js"></script>
+  <script src="js/ki.js"></script>
+  <script src="js/brett.js"></script>
+  <script src="js/bildschirme.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

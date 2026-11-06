@@ -1,0 +1,263 @@
+/* Schach – Stil A (runde Pastellfiguren, Pastellblau-Brett) */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #FFF8EE; color: #26364D; }
+
+/* ---------- Brett ---------- */
+.brett {
+  position: relative;
+  width: min(90vw, 70vh, 560px);
+  aspect-ratio: 1 / 1;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.brett .felder {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+}
+.feld { position: relative; }
+.feld.hell { background: #E4EEFA; }
+.feld.dunkel { background: #9DBFE6; }
+.feld .koord { position: absolute; font-size: 10px; opacity: .55; line-height: 1; pointer-events: none; }
+.feld .koord.r { left: 3px; top: 3px; }
+.feld .koord.f { right: 3px; bottom: 2px; }
+
+/* Markierungen (Overlays ueber der Feldfarbe, Figuren liegen darueber) */
+.feld.letzter::before { content: ""; position: absolute; inset: 0; background: rgba(255, 200, 87, .38); }
+.feld.auswahl::before { content: ""; position: absolute; inset: 0; background: rgba(38, 72, 140, .28); }
+.feld.schach::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle, rgba(255, 110, 130, .85) 0%, rgba(255, 143, 163, .45) 45%, rgba(255, 143, 163, 0) 72%);
+}
+.feld.ziel::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 28%; height: 28%; margin: -14% 0 0 -14%;
+  border-radius: 50%; background: rgba(38, 72, 140, .42);
+}
+.feld.ziel.schlag::after {
+  width: 92%; height: 92%; margin: -46% 0 0 -46%;
+  background: none; border: 5px solid rgba(38, 72, 140, .45);
+}
+
+/* Figuren-Ebene: Figuren per transform positioniert (1 Feld = 100 % der eigenen Groesse) */
+.brett .figuren { position: absolute; inset: 0; pointer-events: none; }
+.figur-el {
+  position: absolute; left: 0; top: 0;
+  width: 12.5%; height: 12.5%;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.brett.gesperrt .figur-el { cursor: default; }
+.figur-el.zieht { z-index: 2; }
+.figur-el.gezogen { z-index: 10; cursor: grabbing; }
+.figur-el.weg { pointer-events: none; z-index: 1; }
+.figur-el .bogen {
+  width: 100%; height: 100%;
+  display: flex; align-items: flex-end; justify-content: center;
+  transform-origin: 50% 100%;
+}
+.figur-el.gezogen .bogen { transform: scale(1.1); }
+.figur-el svg { width: 92%; height: 92%; overflow: visible; display: block; }
+
+/* ---------- Figuren-Animationen ---------- */
+/* Wippen auf der inneren Gruppe, Huepfen auf der aeusseren: so stoeren sie sich nicht. */
+.huepf { transform-box: fill-box; transform-origin: 50% 100%; }
+.wippen { transform-box: fill-box; transform-origin: 50% 100%; animation: wippen 3.2s ease-in-out infinite; }
+.augen { transform-box: fill-box; transform-origin: 50% 50%; animation: blinzeln 35s infinite; }
+@media (hover: hover) {
+  .figur-el:hover .huepf { animation: huepfen .55s ease-out; }
+}
+@keyframes wippen { 0%, 100% { transform: scale(1, 1) } 50% { transform: scale(1.03, .97) } }
+@keyframes huepfen { 0% { transform: translateY(0) } 20% { transform: scale(1.08, .9) } 50% { transform: translateY(-22%) scale(.95, 1.06) } 80% { transform: scale(1.06, .94) } 100% { transform: translateY(0) } }
+@keyframes blinzeln { 0%, 98.8%, 100% { transform: scaleY(1) } 99.4% { transform: scaleY(.1) } }
+
+/* Sparmodus: Wippen und Blinzeln aus, Zug-Animationen bleiben. */
+body.sparsam .wippen, body.sparsam .augen { animation: none; }
+/* Ruhige Figuren: stehende Figuren auf dem Brett bewegen sich nicht, nur die gezogene einmal (per WAAPI). */
+body.ruhig .brett .wippen, body.ruhig .brett .augen { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .wippen, .augen { animation: none; }
+}
+
+/* ---------- Allgemein ---------- */
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 3px solid #3F72B8; outline-offset: 2px; }
+#app { min-height: 100vh; padding: 16px; position: relative; }
+
+/* ---------- Startbildschirm ---------- */
+.start-karte {
+  max-width: 420px; margin: 30px auto; background: #fff; border-radius: 24px; padding: 28px;
+  box-shadow: 0 8px 30px rgba(63, 114, 184, .15); text-align: center;
+}
+.start-karte h1 { margin: 0 0 4px; font-size: 28px; }
+.start-karte .untertitel { margin: 0; opacity: .7; }
+.start-figuren { display: flex; justify-content: center; gap: 4px; }
+.start-figur { width: 60px; height: 60px; display: flex; align-items: flex-end; justify-content: center; }
+.start-figur svg { width: 92%; height: 92%; overflow: visible; }
+.start-karte label, .start-karte .feldtitel { display: block; text-align: left; font-weight: 600; margin: 18px 0 6px; }
+.start-karte input {
+  width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #D6E4F5; font: inherit; color: inherit;
+}
+.wahl { display: flex; gap: 8px; }
+.wahl button {
+  flex: 1; padding: 12px 6px; border-radius: 14px; border: 2px solid #D6E4F5; background: #fff; cursor: pointer;
+  transition: border-color .15s, background-color .15s;
+}
+.wahl button small { display: block; font-weight: 400; opacity: .75; }
+.wahl button[aria-pressed="true"] { border-color: #3F72B8; background: #E8F0FB; font-weight: 600; }
+.wahl-figur { display: block; width: 44px; height: 44px; margin: 0 auto 4px; }
+.wahl-figur svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.los {
+  margin-top: 24px; width: 100%; padding: 14px; border: none; border-radius: 16px;
+  background: #3F72B8; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer;
+}
+.los:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------- Partie ---------- */
+/* Brett wird im Leerlauf unsichtbar vorgebaut und vorab gelayoutet (kein Long Task beim Start). */
+#partie.vorbau { position: absolute; left: 16px; right: 16px; top: 16px; visibility: hidden; pointer-events: none; }
+#partie { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; justify-content: center; }
+.spalte-brett { flex: 0 0 auto; }
+.spieler { display: flex; align-items: center; gap: 8px; padding: 8px 4px; font-weight: 600; min-height: 40px; flex-wrap: wrap; }
+.spieler .badge { font-size: 12px; font-weight: 500; background: #E8F0FB; padding: 2px 8px; border-radius: 999px; }
+.spieler .amzug-text { display: none; font-size: 12px; font-weight: 500; color: #2E8B57; }
+.spieler.amzug .amzug-text { display: inline; }
+#denkt { font-size: 13px; font-weight: 500; color: #2D5A9A; background: #E8F0FB; padding: 2px 10px; border-radius: 999px; }
+#denkt .punkte span { animation: punkt 1.2s infinite; opacity: .2; }
+#denkt .punkte span:nth-child(2) { animation-delay: .2s; }
+#denkt .punkte span:nth-child(3) { animation-delay: .4s; }
+@keyframes punkt { 0%, 100% { opacity: .2 } 40% { opacity: 1 } }
+.seitenleiste { flex: 1; min-width: 280px; max-width: 380px; display: flex; flex-direction: column; gap: 14px; padding-top: 48px; }
+.knoepfe { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.knopf {
+  padding: 10px; border-radius: 12px; border: 2px solid #D6E4F5; background: #fff; cursor: pointer; text-align: left;
+  transition: border-color .15s, background-color .15s;
+}
+.knopf:disabled { opacity: .45; cursor: not-allowed; }
+.knopf[aria-pressed="true"] { border-color: #3F72B8; background: #E8F0FB; }
+.schalter {
+  display: inline-block; width: 34px; height: 18px; border-radius: 9px; background: #ccc;
+  vertical-align: middle; position: relative; margin-right: 6px; transition: background-color .2s;
+}
+.schalter::after {
+  content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff;
+  top: 2px; left: 2px; transition: transform .2s;
+}
+.knopf[aria-pressed="true"] .schalter { background: #3F72B8; }
+.knopf[aria-pressed="true"] .schalter::after { transform: translateX(16px); }
+.box { background: #fff; border-radius: 16px; padding: 14px 16px; box-shadow: 0 4px 14px rgba(0, 0, 0, .06); }
+.box.status { margin: 0; font-weight: 600; min-height: 3em; }
+.hinweis { border-left: 5px solid #F2B84B; }
+.box h3 { margin: 0 0 8px; font-size: 15px; }
+.hinweis p { margin: 0 0 6px; }
+.hinweis p:last-child { margin-bottom: 0; }
+.begriff { border-bottom: 2px dotted #3F72B8; color: #2D5A9A; cursor: help; position: relative; font-weight: 600; }
+.begriff .tooltip {
+  visibility: hidden; opacity: 0; position: absolute; left: 50%; bottom: 130%;
+  transform: translateX(calc(-50% + var(--versatz, 0px)));
+  width: 260px; max-width: calc(100vw - 16px); background: #26364D; color: #fff; font-weight: 400;
+  padding: 10px 12px; border-radius: 10px; font-size: 13px; transition: opacity .2s; z-index: 5;
+}
+.begriff.unten .tooltip { bottom: auto; top: 130%; }
+.begriff:focus-visible .tooltip, .begriff.offen .tooltip { visibility: visible; opacity: 1; }
+/* Hover und Fokus nur bei Geraeten mit Maus: auf Touch oeffnet allein das Antippen (.offen). */
+@media (hover: hover) {
+  .begriff:hover .tooltip, .begriff:focus .tooltip { visibility: visible; opacity: 1; }
+}
+.geschlagen .reihe-titel { font-size: 13px; opacity: .7; margin-top: 6px; }
+.geschlagen .reihe-titel:first-of-type { margin-top: 0; }
+.geschlagen .reihe { display: flex; flex-wrap: wrap; gap: 2px; min-height: 40px; align-items: flex-end; }
+.geschlagen svg { width: 36px; height: 36px; overflow: visible; }
+.geschlagen .wippen, .geschlagen .augen { animation: none; }
+
+/* ---------- Umwandlung ---------- */
+#umwandlung {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+  background: rgba(38, 54, 77, .35); padding: 16px;
+}
+.umwandlung-karte {
+  background: #fff; border-radius: 24px; padding: 22px; max-width: 420px; width: 100%; text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .18); animation: auftauchen .3s ease-out both;
+}
+.umwandlung-karte h2 { margin: 0 0 14px; font-size: 18px; }
+.umwandlung-karte .wahl-figur { width: 56px; height: 56px; }
+@keyframes auftauchen { from { transform: scale(.85); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+
+
+/* ---------- Partieende ---------- */
+.brett-huelle { position: relative; width: fit-content; }
+#ende-overlay {
+  position: absolute; inset: 0; z-index: 20; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; padding: 10px;
+  background: rgba(255, 248, 238, .72);
+}
+#ende-overlay[data-ergebnis="sieg"] { background: rgba(255, 241, 246, .72); }
+#ende-overlay[data-ergebnis="niederlage"] { background: rgba(238, 243, 255, .74); }
+.ende-konfetti { position: absolute; inset: 0; overflow: hidden; border-radius: 12px; pointer-events: none; animation: ausblenden 1s linear 5s both; }
+.konfetti {
+  position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 2px;
+  will-change: transform; animation: fallen linear infinite;
+}
+@keyframes fallen { to { transform: translateY(var(--fall, 600px)) rotate(720deg); } }
+@keyframes ausblenden { to { opacity: 0; } }
+.wimpel { position: absolute; top: 0; left: 0; right: 0; height: 44px; display: flex; padding: 0 4px; pointer-events: none; }
+.wimpel span {
+  flex: 1; margin: 0 2px; height: 40px; clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center; animation: schwingen 2s ease-in-out infinite;
+}
+@keyframes schwingen { 0%, 100% { transform: rotate(-6deg) } 50% { transform: rotate(6deg) } }
+.ende-x {
+  position: absolute; top: 46px; right: 14px; z-index: 3; width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); font-size: 22px; line-height: 1; cursor: pointer;
+}
+#ende-overlay[data-ergebnis="remis"] .ende-x, #ende-overlay[data-ergebnis="niederlage"] .ende-x { top: 12px; }
+.banner {
+  position: relative; z-index: 2; background: #fff; padding: 22px 28px; border-radius: 24px; text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .12); max-width: 100%; max-height: 100%; overflow: visible;
+  animation: auftauchen .8s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.banner h2 { margin: 8px 0; font-size: 28px; overflow-wrap: anywhere; }
+.banner p { margin: 0 0 16px; font-size: 16px; }
+.banner .figuren { display: flex; justify-content: center; gap: 6px; }
+.banner .figuren .figur { width: 64px; height: 64px; display: flex; align-items: flex-end; }
+.banner .figuren svg { width: 100%; height: 100%; overflow: visible; }
+#ende-overlay[data-ergebnis="sieg"] .figuren .huepf { animation: jubel 1s ease-in-out infinite; }
+#ende-overlay[data-ergebnis="sieg"] .figuren .figur:nth-child(2) .huepf { animation-delay: .15s; }
+#ende-overlay[data-ergebnis="sieg"] .figuren .figur:nth-child(3) .huepf { animation-delay: .3s; }
+@keyframes jubel { 0%, 100% { transform: translateY(0) } 40% { transform: translateY(-25%) rotate(-5deg) } 60% { transform: translateY(-25%) rotate(5deg) } }
+.knopfreihe { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.knopfreihe button { padding: 12px 20px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; background: #3F72B8; color: #fff; }
+.knopfreihe button.zweit { background: #E8F0FB; color: #2D5A9A; }
+#ende-text .begriff { position: relative; }
+body.sparsam .wimpel span, body.sparsam #ende-overlay .huepf { animation: none; }
+@media (max-width: 700px) {
+  #ende-overlay { padding: 6px; }
+  .banner { padding: 14px 14px; border-radius: 18px; }
+  .banner h2 { font-size: 21px; margin: 4px 0; }
+  .banner p { font-size: 14px; margin-bottom: 10px; }
+  .banner .figuren .figur { width: 46px; height: 46px; }
+  .knopfreihe button { padding: 10px 14px; }
+  .ende-x { right: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wimpel span, #ende-overlay .huepf, .banner { animation: none; }
+}
+
+/* ---------- Schmale Bildschirme: Brett oben, Bedienelemente darunter ---------- */
+@media (max-width: 700px) {
+  #app { padding: 8px; }
+  #partie.vorbau { left: 8px; right: 8px; top: 8px; }
+  #partie { flex-direction: column; align-items: center; gap: 12px; }
+  .seitenleiste { min-width: 0; width: min(90vw, 560px); max-width: none; padding-top: 0; }
+  .start-karte { margin: 12px auto; padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #denkt .punkte span { animation: none; opacity: 1; }
+  .umwandlung-karte { animation: none; }
+}
